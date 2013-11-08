@@ -4,6 +4,11 @@ public class Sensor {
 	private String BSSID;
 	private String Shopname;
 	private Integer RSSI;
+	
+	public Sensor (String BSSID, Integer RSSI){
+		this.BSSID=BSSID;
+		this.RSSI=RSSI;
+	};
 
 	public String getBSSID(){return BSSID;}
 	public String getShopname(){return Shopname;}
