@@ -35,16 +35,17 @@ public class SSIDCheckerService extends Service {
 		super.onCreate();
 		this.registerReceiver(this.NewWifiResults, new IntentFilter(
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
 	}
 	
 	private BroadcastReceiver NewWifiResults = new BroadcastReceiver() {
 
 		public void onReceive(Context context, Intent intent) {
 
-			Log.d(TAG,"Call BCR");
 			String action = intent.getAction();
 			Object obj = intent.getParcelableExtra("wifiInfo");
+			
+			Log.d(TAG,"Call BCR - Action: "+action);
+			
 			if (obj != null) {
 				if (obj instanceof WifiInfo) {
 					obj = (WifiInfo) obj;
