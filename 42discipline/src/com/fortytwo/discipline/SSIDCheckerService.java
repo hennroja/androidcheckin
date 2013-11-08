@@ -10,14 +10,14 @@ import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.net.wifi.ScanResult;
 
 public class SSIDCheckerService extends Service {
 
 	private static String TAG = "SSIDCheckerService";
 	private final IBinder mBinder = new WifiBinder();
+	private WifiManager wifiMan;
 
-	
-	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return mBinder;
@@ -32,6 +32,9 @@ public class SSIDCheckerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		wifiMan = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+
 		this.registerReceiver(this.NewWifiResults, new IntentFilter(
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 	}
@@ -41,9 +44,10 @@ public class SSIDCheckerService extends Service {
 		public void onReceive(Context context, Intent intent) {
 
 			String action = intent.getAction();
-			Object obj = intent.getParcelableExtra("wifiInfo");
-			
+						
 			Log.d(TAG,"Call BCR - Action: "+action);
+			
+			ArrayList<ScanResult> resList = wifiMan.getScanResults();
 			
 			if (obj != null) {
 				if (obj instanceof WifiInfo) {
