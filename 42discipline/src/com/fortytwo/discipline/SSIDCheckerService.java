@@ -1,5 +1,8 @@
 package com.fortytwo.discipline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -48,16 +51,18 @@ public class SSIDCheckerService extends Service {
 						
 			Log.d(TAG,"Call BCR - Action: "+action);
 			
-			ArrayList<ScanResult> resList = wifiMan.getScanResults();
+			List<ScanResult> resList = wifiMan.getScanResults();
+			ArrayList<Sensor> senList = new ArrayList<Sensor>();
 			
-			if (obj != null) {
-				if (obj instanceof WifiInfo) {
-					obj = (WifiInfo) obj;
-					String networkName = ((WifiInfo) obj).getSSID();
-					System.out.println(" Info : "+ action + " - "+networkName);
-				}
+			for (ScanResult scanResult : resList) {
+				senList.add(new Sensor(scanResult.BSSID, scanResult.level));
 			}
-
+			
+			ApiConnector.getSingleton().getShopnames(senList);
+			
+			for (Sensor sensor : senList) {
+				Log.d(TAG, "BSSID: "+sensor.getBSSID()+ " Name: "+ sensor.getShopname());
+			}
 		}
 	};
 

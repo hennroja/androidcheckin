@@ -18,10 +18,10 @@ public class ApiConnector {
 			String returned_Shopname = null;
 			// String returnval=callapi(sensor.getBSSID());
 			String returnval="NiceShopname";
-			if (returned_Shopname != null)
+			if (returned_Shopname == null)
 				sensor.setShopname(returned_Shopname);
-			else
-				asd.remove(sensor);
+			//else
+				//asd.remove(sensor);
 		}
 
 		return asd;
