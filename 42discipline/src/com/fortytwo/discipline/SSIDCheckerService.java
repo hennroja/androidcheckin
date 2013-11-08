@@ -1,5 +1,6 @@
 package com.fortytwo.discipline;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -1,7 +1,10 @@
 package com.fortytwo.discipline;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -39,6 +42,7 @@ public class MainActivity extends Activity {
 				android.R.layout.simple_list_item_1, appointment);
 		lv.setAdapter(aa);
 		
+		
 		addItem("Desk");
 		addItem("Door");
 		addItem("Kitchen");
@@ -69,6 +73,12 @@ public class MainActivity extends Activity {
 				WifiManager wifiManager = (WifiManager) 
 						main.getSystemService(Context.WIFI_SERVICE);
 				wifiManager.startScan();
+				
+				List<ScanResult> results=wifiManager.getScanResults();
+				aa.clear();
+				for(int i=0;i<results.size();i++){
+					addItem(results.get(i).SSID.toString());
+				}
 			}
 			
 		});
