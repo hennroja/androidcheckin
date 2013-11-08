@@ -29,12 +29,14 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name=".NewWifiResults" >
+<!--         <receiver android:name=".SSIDCheckerService.NewWifiResults" >
             <intent-filter>
                 <action android:name="android.net.wifi.SCAN_RESULTS_AVAILABLE_ACTION" />
+                <action android:name="android.net.wifi.NETWORK_IDS_CHANGED" />
+                 <action android:name="android.net.wifi.SCAN_RESULTS" />               
             </intent-filter>
         </receiver>
-        
+   -->      
         <receiver android:name=".Autostart"  android:enabled="true" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
