@@ -8,7 +8,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Intent;
-import android.content.Context;
+import android.content.Context; 
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -73,8 +73,8 @@ public class MainActivity extends Activity {
 			
 		});
 
-		ActivityManager aManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : aManager
+		ActivityManager aManager1 = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : aManager1
 				.getRunningServices(Integer.MAX_VALUE)) {
 
 			if ("com.fortytwo.discipline.SSIDCheckerService.java"
