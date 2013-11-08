@@ -32,8 +32,6 @@ public class SSIDCheckerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		Log.d(TAG, "on Create Service");
 		this.registerReceiver(this.NewWifiResults, new IntentFilter(
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
@@ -43,7 +41,7 @@ public class SSIDCheckerService extends Service {
 
 		public void onReceive(Context context, Intent intent) {
 
-			System.out.println("Called BCR");
+			Log.d(TAG,"Call BCR");
 			String action = intent.getAction();
 			Object obj = intent.getParcelableExtra("wifiInfo");
 			if (obj != null) {
