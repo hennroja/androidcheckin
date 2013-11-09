@@ -1,8 +1,11 @@
 package com.fortytwo.discipline;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.zip.DataFormatException;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseConnector extends SQLiteOpenHelper {
+public class LocalDatabaseConnector extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "fortytwo";
@@ -29,7 +32,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
     					KEY_STORE + " TEXT, PRIMARY KEY("+KEY_MAC+"));";
     
 	
-	public DatabaseConnector(Context context) {
+	public LocalDatabaseConnector(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		// TODO Auto-generated constructor stub
 	}
@@ -50,18 +53,22 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 	}
 	
 	public void addSensor(Sensor sensor) {
-	    SQLiteDatabase db = this.getWritableDatabase();
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-
-	    ContentValues values = new ContentValues();
-	    values.put(KEY_MAC, sensor.getBSSID()); 
-	    values.put(KEY_TIME,dateFormat.format(new Date()));
-	    values.put(KEY_STORE, sensor.getShopname());
-	 
-	    
-	    
-	    db.insert(SENSOR_TABLE_NAME, null, values);
-	    db.close(); 
+		if(!checkSensor(sensor)){
+		    SQLiteDatabase db = this.getWritableDatabase();
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+	
+		    ContentValues values = new ContentValues();
+		    values.put(KEY_MAC, sensor.getBSSID()); 
+		    values.put(KEY_TIME,dateFormat.format(new Date()));
+		    values.put(KEY_STORE, sensor.getShopname());
+		 
+		    
+		    
+		    db.insert(SENSOR_TABLE_NAME, null, values);
+		    db.close();
+	    }else{
+	    	updateSensor(sensor);
+	    }
 	}
 
 	public boolean checkSensor(Sensor s) {
@@ -78,7 +85,17 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 		    Sensor sensor = new Sensor(cursor.getString(0),
 		            s.getRSSI(), cursor.getString(2));
 		    
-		    sensor.setDate(new Date(cursor.getString(1)));
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		    
+		    try {
+				s.setDate(dateFormat.parse(cursor.getString(1)));
+				s.setShopname(cursor.getString(2));
+				s = sensor;
+				System.out.println(cursor.getString(2));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	    }else{
 	    	result = false;
 	    }
@@ -86,7 +103,7 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 	    return result;
 	}
 	
-	public int updateContact(Sensor sensor) {
+	public int updateSensor(Sensor sensor) {
 	    SQLiteDatabase db = this.getWritableDatabase();
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 
@@ -101,5 +118,29 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 	    
 	    return res;
 	}
+	
+	public ArrayList<Sensor> getAllSensors() {
+		ArrayList<Sensor> contactList = new ArrayList<Sensor>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + SENSOR_TABLE_NAME;
+ 
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+
+        
+        if (cursor.moveToFirst()) {
+            do {
+                Sensor contact = new Sensor(cursor.getString(0),0,"42main");
+                try { contact.setDate(dateFormat.parse(cursor.getString(2)));} 
+                catch (ParseException e) {e.printStackTrace();}
+                contact.setShopname(cursor.getString(1));
+        
+                contactList.add(contact);
+            } while (cursor.moveToNext());
+        }
+ 
+        return contactList;
+    }
 	
 }

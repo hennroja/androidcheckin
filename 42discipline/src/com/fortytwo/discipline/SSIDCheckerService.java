@@ -1,6 +1,8 @@
 package com.fortytwo.discipline;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -34,7 +36,8 @@ public class SSIDCheckerService extends Service {
 	private NotificationManager mNotifyManager;
 	private Notification mNotification;
 	private WifiManager wifiMan;
-	private LinkedHashMap<String, ArrayList<Sensor>> actualShops;
+	LocalDatabaseConnector ldc;
+	//private LinkedHashMap<String, ArrayList<Sensor>> actualShops;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -50,86 +53,113 @@ public class SSIDCheckerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		ldc = new  LocalDatabaseConnector(getApplicationContext());
 
+		demoData();
+
+		
 		wifiMan = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		actualShops = new LinkedHashMap<String, ArrayList<Sensor>>();
+		//actualShops = new LinkedHashMap<String, ArrayList<Sensor>>();
 
 		this.registerReceiver(this.NewWifiResults, new IntentFilter(
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 	}
 
-	private void dohapticNotification(String msg) {
-		// Log.d(TAG,msg);
-		// Uri soundUri = RingtoneManager
-		// .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		// long[] pattern = { 0, 500, 500, 500, 500, 500, 500, 500 };
+	private void dohapticNotification(Sensor sensor) {
 
+		Uri soundUri = RingtoneManager
+		 .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		 long[] pattern = { 0, 100, 200, 100, 200, 200, 500, 100 };
+
+		Intent agreeIntent = new Intent(this, MainActivity.class);
+		PendingIntent pendingAgreeIntent = PendingIntent.getActivity(this, 0,
+				agreeIntent, 0);
+
+        Intent cancelMain = new Intent("action_close_app");
+        PendingIntent pendingCancelIntent = PendingIntent.getActivity(this, 0,
+        		cancelMain, 0);
+		
 		NotificationCompat.Builder mNotification = new NotificationCompat.Builder(
 				this)
 				.setSmallIcon(R.drawable.ic_launcher)
-				// .setSound(soundUri) //this makes me angry
-				// .setVibrate(pattern) //this too
-				.setContentTitle("Check In").setContentText(msg)
-				.addAction(0, "Enter", null);
+				 .setSound(soundUri) //this makes me angry
+				 .setVibrate(pattern) //this too
+				.setContentTitle("Check In").setContentText(sensor.getShopname())
+				.addAction(0, "Agree", pendingAgreeIntent)
+				.addAction(0, "Cancel", pendingCancelIntent);
 
-		Intent resultIntent = new Intent(this, MainActivity.class);
-
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
-				resultIntent, 0);
-		mNotification.setContentIntent(resultPendingIntent);
+		
+		mNotification.setContentIntent(null);
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(1223, mNotification.build());
-
+		mNotificationManager.notify(4242, mNotification.build());
+	
 	}
 
 	private BroadcastReceiver NewWifiResults = new BroadcastReceiver() {
 
 		public void onReceive(Context context, Intent intent) {
 
-			String action = intent.getAction();
-
-			Log.d(TAG, "Call BCR - Action: " + action);
-
 			List<ScanResult> resList = wifiMan.getScanResults();
 			ArrayList<Sensor> senList = new ArrayList<Sensor>();
 
 			for (ScanResult scanResult : resList) {
-				senList.add(new Sensor(scanResult.BSSID, scanResult.level,
-						scanResult.SSID));
-			}
-
-			ApiConnector.getSingleton(getApplicationContext()).getShopnames(senList);
-			Log.d(TAG,"sen List after Request"+senList.toString());
-			ArrayList<String> tmp_shoplist = new ArrayList<String>();
-
-			for (Sensor sensor : senList) {
-				Log.d(TAG,
-						"BSSID: " + sensor.getBSSID() + " SSID: "
-								+ sensor.getSSID() + " ShopName: "
-								+ sensor.getShopname());
-				if (!tmp_shoplist.contains(sensor.getShopname()))
-					tmp_shoplist.add(sensor.getShopname());
-			}
-			//Log.d(TAG,"tmp_shoplistsize"+tmp_shoplist.size());
-			
-			for (String shop : tmp_shoplist) {
-				ArrayList<Sensor> tmpSensorList = new ArrayList<Sensor>();
-				for (Sensor sensor : senList) {
-//					Log.d(TAG,
-//							"BSSID: " + sensor.getBSSID() + " SSID: "
-//									+ sensor.getSSID() + " ShopName: "
-//									+ sensor.getShopname());
-					if (shop.equals(sensor.getShopname())) {
-						tmpSensorList.add(sensor);
-					}
+				Sensor ss = new Sensor(scanResult.BSSID, scanResult.level,
+						scanResult.SSID);
+				ss.setDate(new Date());
+				if(ldc.checkSensor(ss)){
+					senList.add(ss);
 				}
-				actualShops.put(shop, tmpSensorList);
+				
 			}
 
-			//Log.d(TAG, "actualshops.size"+actualShops.size());
-			dohapticNotification(actualShops.keySet().toString());
+			
+			//ApiConnector.getSingleton(getApplicationContext()).getShopnames(senList);
+			Log.d(TAG,"sensorList after Request"+senList.toString());
+
+			Sensor winner = null;
+			for (Sensor sensor : senList) {
+				if(winner==null) winner = sensor;
+				else if(winner.getRSSI()<sensor.getRSSI()){
+					winner = sensor;
+				}
+			}
+
+			if(winner!=null){
+				System.out.println(winner.getShopname());
+				dohapticNotification(winner);
+			}
 		}
 
 	};
+	
+	private void demoData() {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		
+	    Sensor s1 = new Sensor("f8:1a:67:51:59:18", -44, "42main");
+		s1.setShopname("42Kitchen");
+		s1.setDate(new Date());
+		
+	   Sensor s2 = new Sensor("a0:f3:c1:16:5a:58", -44, "42main");
+		s2.setShopname("42Desk");
+		s2.setDate(new Date());
+
+	   Sensor s3 = new Sensor("a0:f3:c1:76:52:9c", -44, "42main");
+		s3.setShopname("42Door");
+		s3.setDate(new Date());
+
+		ldc.addSensor(s1);
+		ldc.addSensor(s2);
+		ldc.addSensor(s3);
+		
+		ArrayList<Sensor> b = ldc.getAllSensors();
+		for (Sensor sensor2 : b) {
+			System.out.print(sensor2.getBSSID()+" ");
+			System.out.print(sensor2.getShopname()+" ");
+			System.out.print(sensor2.getSSID()+" ");
+			System.out.print(sensor2.getRSSI()+" ");
+			System.out.println(sensor2.getTimestamp()+" ");
+		}
+
+	}
 
 }

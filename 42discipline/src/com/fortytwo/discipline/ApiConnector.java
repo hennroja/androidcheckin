@@ -52,34 +52,33 @@ public class ApiConnector {
 
 	public void getShopnames(List<Sensor> SensorList) {
 		ArrayList<Sensor> removeList = new ArrayList<Sensor>();
-		ArrayList<String> macStringsList= new ArrayList<String>();
+		//ArrayList<String> macStringsList= new ArrayList<String>();
 		
 		for (Sensor sensor : SensorList) {
 			String returned_Shopname = null;
 			if (sensor.getSSID().equals("")) {
-				macStringsList.add(sensor.getBSSID());
+				//macStringsList.add(sensor.getBSSID());
 				
+				LocalDatabaseConnector db = new LocalDatabaseConnector(cont);
 				
-				DatabaseConnector db = new DatabaseConnector(cont);
+				boolean is42Router = db.checkSensor(sensor);
 				
-				if(db.checkSensor(sensor)){
-					db.updateContact(sensor);
+				if(is42Router){
+					db.updateSensor(sensor);
 				}else{
-					RequestManager task = new RequestManager();
-					try {
-						returned_Shopname=task.execute(macStringsList.get(0)).get();
-						sensor.setShopname(returned_Shopname);
-
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (ExecutionException e) {
-						e.printStackTrace();
-					}	
+					Log.d(TAG, "Not in List");
 				}
-				
-			
-    
-    			//returned_Shopname = "NiceShopname";
+//					RequestManager task = new RequestManager();
+//					try {
+//						returned_Shopname=task.execute(macStringsList.get(0)).get();
+//						sensor.setShopname(returned_Shopname);
+//
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					} catch (ExecutionException e) {
+//						e.printStackTrace();
+//					}	
+
 				sensor.setSSID("42maintenance");
 			}
 			if (returned_Shopname == null)
@@ -107,7 +106,7 @@ public class ApiConnector {
 		JSONArray json =new JSONArray();
 		try {
 			HttpPost post = new HttpPost(URL);
-//			
+		
 //			json.put("a0:f3:c1:76:51:b0");
 //			json.put("f8:1a:67:51:75:96");
 			json.put(sensormac);
