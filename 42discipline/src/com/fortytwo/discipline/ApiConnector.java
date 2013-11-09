@@ -12,19 +12,25 @@ public class ApiConnector {
 		return SingletonHolder.SINGLETON;
 	}
 
-	public List<Sensor> getShopnames(List<Sensor> asd) {
-		// call a
-		for (Sensor sensor : asd) {
+	public void getShopnames(List<Sensor> SensorList) {
+		for (Sensor sensor : SensorList) {
 			String returned_Shopname = null;
-			// String returnval=callapi(sensor.getBSSID());
-			String returnval="NiceShopname";
+			if (sensor.getSSID().equals("")) {
+				// returnval=callapi(sensor.getBSSID());
+				returned_Shopname = "NiceShopname";
+			}
 			if (returned_Shopname == null)
-				sensor.setShopname(returned_Shopname);
-			//else
-				//asd.remove(sensor);
+				SensorList.remove(sensor);
 		}
+	}
 
-		return asd;
+	public boolean initApiConnection() {
+		// init api connection sucess
+		return true;
+	}
+
+	public void stopApiConnection() {
+		// stop api connection
 	}
 
 }
