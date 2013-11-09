@@ -6,9 +6,10 @@ public class Sensor {
 	private Integer RSSI;
 	private String SSID;
 	
-	public Sensor (String BSSID, Integer RSSI){
+	public Sensor (String BSSID, Integer RSSI,String SSID){
 		this.BSSID=BSSID;
 		this.RSSI=RSSI;
+		this.SSID=SSID;
 	};
 
 	public String getBSSID(){return BSSID;}
