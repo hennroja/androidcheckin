@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiConnector {
+	
 
 	private static class SingletonHolder {
 		public static final ApiConnector SINGLETON = new ApiConnector();
@@ -18,10 +19,11 @@ public class ApiConnector {
 		for (Sensor sensor : SensorList) {
 			String returned_Shopname = null;
 			if (sensor.getSSID().equals("")) {
-				// returnval=callapi(sensor.getBSSID());
+				// returnval={bool erfolg,string shopname,Integer Sensornum}
+				// returnval=callapi(sensor.getBSSID(),String UserID,string auth);rssi
 				returned_Shopname = "NiceShopname";
 				sensor.setShopname(returned_Shopname);
-				sensor.setSSID("42-maintenance");
+				sensor.setSSID("42maintenance");
 			}
 			if (returned_Shopname == null)
 				removeList.add(sensor);
