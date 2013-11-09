@@ -61,7 +61,7 @@ public class SSIDCheckerService extends Service {
 			ApiConnector.getSingleton().getShopnames(senList);
 			
 			for (Sensor sensor : senList) {
-				Log.d(TAG, "BSSID: "+sensor.getBSSID()+"SSID"+sensor.getSSID()+ " ShopName: "+ sensor.getShopname());
+				Log.d(TAG, "BSSID: "+sensor.getBSSID()+" SSID: "+sensor.getSSID()+ " ShopName: "+ sensor.getShopname());
 			}
 		}
 	};

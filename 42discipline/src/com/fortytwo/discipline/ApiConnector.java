@@ -20,6 +20,7 @@ public class ApiConnector {
 			if (sensor.getSSID().equals("")) {
 				// returnval=callapi(sensor.getBSSID());
 				returned_Shopname = "NiceShopname";
+				sensor.setShopname(returned_Shopname);
 				sensor.setSSID("42-maintenance");
 			}
 			if (returned_Shopname == null)
