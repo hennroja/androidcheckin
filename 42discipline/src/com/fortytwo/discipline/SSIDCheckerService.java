@@ -57,35 +57,6 @@ public class SSIDCheckerService extends Service {
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 	}
 
-	private void doNotificaton(String msg) {
-		//
-		// PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new
-		// Intent(this, MainActivity.class), Intent.FILL_IN_ACTION);
-		//
-		// // this is it, we'll build the notification!
-		// // in the addAction method, if you don't want any icon, just set the
-		// first param to 0
-		// Notification mNotification = new Notification.Builder(this)
-		//
-		// .setContentTitle("New Post!")
-		// .setContentText("Here's an awesome update for you!")
-		// .setContentIntent(contentIntent)
-		// .addAction(0, "Remind", contentIntent)
-		// .build();
-		// //
-		// mNotifyManager = (NotificationManager)
-		// getSystemService(Context.NOTIFICATION_SERVICE);
-		// //Notification noti
-		// mNotification = new Notification(R.drawable.ic_launcher,
-		// "OSGi Gateway starting", System.currentTimeMillis());
-		// PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new
-		// Intent(this, MainActivity.class), Intent.FILL_IN_ACTION);
-		// //mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-		// mNotification.
-		// mNotification.setLatestEventInfo(this, "42discipline",
-		// "writes to you:"+msg, contentIntent);
-		// mNotifyManager.notify(123, mNotification);
-	}
 
 	private void dohapticNotification(String msg) {
 		Uri soundUri = RingtoneManager

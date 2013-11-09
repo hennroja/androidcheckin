@@ -8,6 +8,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.StrictMode;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -45,6 +46,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		ListView lv = (ListView) findViewById(R.id.listView1);
 
+	
 		appointment = new ArrayList<String>();
 		aList = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, appointment);
