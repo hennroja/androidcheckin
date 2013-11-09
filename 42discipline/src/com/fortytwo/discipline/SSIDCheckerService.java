@@ -10,7 +10,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -75,12 +74,8 @@ public class SSIDCheckerService extends Service {
 
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
-		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		stackBuilder.addParentStack(MainActivity.class);
-		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
 				resultIntent, 0);
-		stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		mNotification.setContentIntent(resultPendingIntent);
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(1223, mNotification.build());
@@ -103,7 +98,7 @@ public class SSIDCheckerService extends Service {
 						scanResult.SSID));
 			}
 
-			ApiConnector.getSingleton().getShopnames(senList);
+			ApiConnector.getSingleton(getApplicationContext()).getShopnames(senList);
 			Log.d(TAG,"sen List after Request"+senList.toString());
 			ArrayList<String> tmp_shoplist = new ArrayList<String>();
 

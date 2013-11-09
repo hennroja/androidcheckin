@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -38,12 +39,14 @@ import android.util.Log;
 public class ApiConnector {
     private final String TAG = "MAIN ACITIVTY";
 	private final String USER_AGENT = "Mozilla/5.0";
-
+	private static Context cont;
+	
 	private static class SingletonHolder {
 		public static final ApiConnector SINGLETON = new ApiConnector();
 	}
 
-	public static ApiConnector getSingleton() {
+	public static ApiConnector getSingleton(Context con) {
+		cont = con;
 		return SingletonHolder.SINGLETON;
 	}
 
@@ -56,19 +59,27 @@ public class ApiConnector {
 			if (sensor.getSSID().equals("")) {
 				macStringsList.add(sensor.getBSSID());
 				
-				RequestManager task = new RequestManager();
-				try {
-					returned_Shopname=task.execute(macStringsList.get(0)).get();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
+				
+				DatabaseConnector db = new DatabaseConnector(cont);
+				
+				if(db.checkSensor(sensor)){
+					db.updateContact(sensor);
+				}else{
+					RequestManager task = new RequestManager();
+					try {
+						returned_Shopname=task.execute(macStringsList.get(0)).get();
+						sensor.setShopname(returned_Shopname);
+
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}	
+				}
+				
+			
     
     			//returned_Shopname = "NiceShopname";
-				sensor.setShopname(returned_Shopname);
 				sensor.setSSID("42maintenance");
 			}
 			if (returned_Shopname == null)
