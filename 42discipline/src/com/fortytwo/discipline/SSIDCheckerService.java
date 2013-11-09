@@ -56,13 +56,19 @@ public class SSIDCheckerService extends Service {
 			
 			for (ScanResult scanResult : resList) {
 				senList.add(new Sensor(scanResult.BSSID, scanResult.level));
+				Log.d(TAG, "BSSID: "+scanResult.BSSID+ 
+						//" encrypt: "+ scanResult.capabilities+
+						//" freq: "+ scanResult.frequency+
+						" dbm: "+ scanResult.level+
+						" name: " + scanResult.SSID);
+
 			}
 			
 			ApiConnector.getSingleton().getShopnames(senList);
 			
-			for (Sensor sensor : senList) {
-				Log.d(TAG, "BSSID: "+sensor.getBSSID()+ " Name: "+ sensor.getShopname());
-			}
+//			for (Sensor sensor : senList) {
+//				Log.d(TAG, "BSSID: "+sensor.getBSSID()+ " Name: "+ sensor.getShopname());
+//			}
 		}
 	};
 
