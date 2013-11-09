@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -48,16 +49,25 @@ public class ApiConnector {
 
 	public void getShopnames(List<Sensor> SensorList) {
 		ArrayList<Sensor> removeList = new ArrayList<Sensor>();
+		ArrayList<String> macStringsList= new ArrayList<String>();
+		
 		for (Sensor sensor : SensorList) {
 			String returned_Shopname = null;
 			if (sensor.getSSID().equals("")) {
-				// returnval={bool erfolg,string shopname,Integer Sensornum}
-				// returnval=callapi(sensor.getBSSID(),String UserID,string
-				// auth);rssi
+				macStringsList.add(sensor.getBSSID());
+				
 				RequestManager task = new RequestManager();
-				task.execute(new String[] { "http://www.vogella.com" });				
+				try {
+					returned_Shopname=task.execute(macStringsList.get(0)).get();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
     
-    			returned_Shopname = "NiceShopname";
+    			//returned_Shopname = "NiceShopname";
 				sensor.setShopname(returned_Shopname);
 				sensor.setSSID("42maintenance");
 			}
@@ -76,7 +86,7 @@ public class ApiConnector {
 		// stop api connection
 	}
 
-	public void httppost()  {
+	public String httppost(String sensormac)  {
 		
 		HttpClient client = new DefaultHttpClient();
 		HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000); // Timeout
@@ -86,11 +96,12 @@ public class ApiConnector {
 		JSONArray json =new JSONArray();
 		try {
 			HttpPost post = new HttpPost(URL);
-			
-			json.put("a0:f3:c1:76:51:b0");
-			json.put("f8:1a:67:51:75:96");
+//			
+//			json.put("a0:f3:c1:76:51:b0");
+//			json.put("f8:1a:67:51:75:96");
+			json.put(sensormac);
 			StringEntity se = new StringEntity(json.toString());
-			Log.d(TAG,getStringFromInputStream(se.getContent()));
+			//Log.d(TAG,getStringFromInputStream(se.getContent()));
 			se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,
 					"application/json"));
 			post.setEntity(se);
@@ -99,14 +110,14 @@ public class ApiConnector {
 			/* Checking response */
 			if (response != null) {
 				InputStream in = response.getEntity().getContent(); // Get the
-				Log.d(TAG,getStringFromInputStream(in));										// data in
-																// the
-																// entity
+				Log.d(TAG,"answer httprequest"+getStringFromInputStream(in));
+				return getStringFromInputStream(in);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 	// convert InputStream to String
 		private static String getStringFromInputStream(InputStream is) {
@@ -142,11 +153,7 @@ public class ApiConnector {
 
 			@Override
 			protected String doInBackground(String... arg0) {
-				httppost();
-			
-
-				
-				return null;
+				return httppost(arg0[0]);
 			}
 			  
 		  }

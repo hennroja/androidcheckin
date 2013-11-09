@@ -1,6 +1,7 @@
 package com.fortytwo.discipline;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -9,6 +10,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +35,7 @@ public class SSIDCheckerService extends Service {
 	private NotificationManager mNotifyManager;
 	private Notification mNotification;
 	private WifiManager wifiMan;
-	private Shop actualShop;
+	private LinkedHashMap<String, ArrayList<Sensor>> actualShops;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -51,36 +53,37 @@ public class SSIDCheckerService extends Service {
 		super.onCreate();
 
 		wifiMan = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		actualShops = new LinkedHashMap<String, ArrayList<Sensor>>();
 
 		this.registerReceiver(this.NewWifiResults, new IntentFilter(
 				WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 	}
 
-
 	private void dohapticNotification(String msg) {
-		Uri soundUri = RingtoneManager
-				.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		long[] pattern = { 0, 500, 500, 500, 500, 500, 500, 500 };
+		// Log.d(TAG,msg);
+		// Uri soundUri = RingtoneManager
+		// .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		// long[] pattern = { 0, 500, 500, 500, 500, 500, 500, 500 };
 
 		NotificationCompat.Builder mNotification = new NotificationCompat.Builder(
-				this).setSmallIcon(R.drawable.ic_launcher).setSound(soundUri)
-				.setContentTitle("Check In").setContentText(msg).addAction(0, "Enter", null);
-		// .setVibrate(pattern)
+				this)
+				.setSmallIcon(R.drawable.ic_launcher)
+				// .setSound(soundUri) //this makes me angry
+				// .setVibrate(pattern) //this too
+				.setContentTitle("Check In").setContentText(msg)
+				.addAction(0, "Enter", null);
 
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
-		
-		
-		
-		//TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		//stackBuilder.addParentStack(MainActivity.class);
-		//stackBuilder.addNextIntent(resultIntent);
-		PendingIntent resultPendingIntent =PendingIntent.getActivity(this, 0, resultIntent, 0); 
-				//stackBuilder.getPendingIntent(0,
-				//PendingIntent.FLAG_UPDATE_CURRENT);
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		stackBuilder.addParentStack(MainActivity.class);
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0,
+				resultIntent, 0);
+		stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		mNotification.setContentIntent(resultPendingIntent);
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(123, mNotification.build());
+		mNotificationManager.notify(1223, mNotification.build());
 
 	}
 
@@ -101,25 +104,35 @@ public class SSIDCheckerService extends Service {
 			}
 
 			ApiConnector.getSingleton().getShopnames(senList);
-
-			actualShop = new Shop();
+			Log.d(TAG,"sen List after Request"+senList.toString());
+			ArrayList<String> tmp_shoplist = new ArrayList<String>();
 
 			for (Sensor sensor : senList) {
-
 				Log.d(TAG,
 						"BSSID: " + sensor.getBSSID() + " SSID: "
 								+ sensor.getSSID() + " ShopName: "
 								+ sensor.getShopname());
-
+				if (!tmp_shoplist.contains(sensor.getShopname()))
+					tmp_shoplist.add(sensor.getShopname());
+			}
+			//Log.d(TAG,"tmp_shoplistsize"+tmp_shoplist.size());
+			
+			for (String shop : tmp_shoplist) {
+				ArrayList<Sensor> tmpSensorList = new ArrayList<Sensor>();
+				for (Sensor sensor : senList) {
+//					Log.d(TAG,
+//							"BSSID: " + sensor.getBSSID() + " SSID: "
+//									+ sensor.getSSID() + " ShopName: "
+//									+ sensor.getShopname());
+					if (shop.equals(sensor.getShopname())) {
+						tmpSensorList.add(sensor);
+					}
+				}
+				actualShops.put(shop, tmpSensorList);
 			}
 
-			if(senList.size()>0){
-			if (!actualShop.getShopname().equals(senList.get(0).getShopname())) {
-				dohapticNotification(senList.get(0).getShopname());
-				actualShop.setShopname(senList.get(0).getShopname());
-			}
-			}
-
+			//Log.d(TAG, "actualshops.size"+actualShops.size());
+			dohapticNotification(actualShops.keySet().toString());
 		}
 
 	};
