@@ -9,7 +9,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -65,16 +64,20 @@ public class SSIDCheckerService extends Service {
 
 		NotificationCompat.Builder mNotification = new NotificationCompat.Builder(
 				this).setSmallIcon(R.drawable.ic_launcher).setSound(soundUri)
-				.setContentTitle("Check In").setContentText(msg);
+				.setContentTitle("Check In").setContentText(msg).addAction(0, "Enter", null);
 		// .setVibrate(pattern)
 
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
-		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		stackBuilder.addParentStack(MainActivity.class);
-		stackBuilder.addNextIntent(resultIntent);
-		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-				PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		
+		
+		//TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		//stackBuilder.addParentStack(MainActivity.class);
+		//stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =PendingIntent.getActivity(this, 0, resultIntent, 0); 
+				//stackBuilder.getPendingIntent(0,
+				//PendingIntent.FLAG_UPDATE_CURRENT);
 		mNotification.setContentIntent(resultPendingIntent);
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(123, mNotification.build());
@@ -110,9 +113,11 @@ public class SSIDCheckerService extends Service {
 
 			}
 
+			if(senList.size()>0){
 			if (!actualShop.getShopname().equals(senList.get(0).getShopname())) {
 				dohapticNotification(senList.get(0).getShopname());
 				actualShop.setShopname(senList.get(0).getShopname());
+			}
 			}
 
 		}

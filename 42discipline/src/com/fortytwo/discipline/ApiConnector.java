@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class ApiConnector {
@@ -53,8 +54,10 @@ public class ApiConnector {
 				// returnval={bool erfolg,string shopname,Integer Sensornum}
 				// returnval=callapi(sensor.getBSSID(),String UserID,string
 				// auth);rssi
-				httppost();
-				returned_Shopname = "NiceShopname";
+				RequestManager task = new RequestManager();
+				task.execute(new String[] { "http://www.vogella.com" });				
+    
+    			returned_Shopname = "NiceShopname";
 				sensor.setShopname(returned_Shopname);
 				sensor.setSSID("42maintenance");
 			}
@@ -134,5 +137,19 @@ public class ApiConnector {
 			return sb.toString();
 	 
 		}
+		
+		  private class RequestManager extends AsyncTask<String, Void, String> {
+
+			@Override
+			protected String doInBackground(String... arg0) {
+				httppost();
+			
+
+				
+				return null;
+			}
+			  
+		  }
+
 
 }
